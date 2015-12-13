@@ -17,7 +17,10 @@ import (
 	"github.com/tdewolff/minify/svg"
 )
 
-type Options html.Options
+type Options struct {
+	KeepDefaultAttrVals bool
+	KeepWhitespace      bool
+}
 
 func Minify(opt Options) gonzo.Stage {
 
@@ -33,7 +36,10 @@ func Minify(opt Options) gonzo.Stage {
 				buff := new(bytes.Buffer)
 				ctx.Infof("Minfiying %s", file.FileInfo().Name())
 				m := minify.New()
-				m.AddFunc("text/html", html.MinifyWithOptions(html.Options(opt)))
+				m.Add("text/html", &html.Minifier{
+					KeepDefaultAttrVals: opt.KeepDefaultAttrVals,
+					KeepWhitespace:      opt.KeepWhitespace,
+				})
 				m.AddFunc("text/css", css.Minify)
 				m.AddFunc("text/javascript", js.Minify)
 				m.AddFunc("image/svg+xml", svg.Minify)
